@@ -1,0 +1,134 @@
+{
+  "season": "2025",
+  "teamsData": [
+    {		
+      "team_info": {
+        "id": 111,
+        "name": "Red Bull Racing",
+        "short": "RBR"
+      },
+      "drivers": [
+        {
+          "id": 101,
+          "fullName": "Max Verstappen",
+          "skill": "EXPERT",
+          "active": true
+        },
+        {
+          "id": 102,
+          "fullName": "Sergio Perez",
+          "skill": "PRO",
+          "active": true
+        }
+      ]
+    },
+    {
+      "team_info": {
+        "id": 122,
+        "name": "Ferrari",
+        "short": "FER"
+      },
+      "drivers": [
+        {
+          "id": 201,
+          "fullName": "Charles Leclerc",
+          "skill": "EXPERT",
+          "active": true
+        },
+        {
+          "id": 202,
+          "fullName": "Carlos Sainz",
+          "skill": "PRO",
+          "active": true
+        }
+      ]
+    },
+    {
+      "team_info": {
+        "id": 133,
+        "name": "Mercedes",
+        "short": "MER"
+      },
+      "drivers": [
+        {
+          "id": 301,
+          "fullName": "Lewis Hamilton",
+          "skill": "EXPERT",
+          "active": true
+        },
+        {
+          "id": 302,
+          "fullName": "George Russell",
+          "skill": "PRO",
+          "active": true
+        }
+      ]
+    }
+  ],
+ "raceCalendar": [
+  {
+    "matchId": 1001,
+    "round": 1,
+    "location": {
+      "circuit": "Bahrain International Circuit",
+      "short": "BAH"
+    },
+    "timings": {
+      "start": "2025-03-02T15:00:00Z",
+      "end": "2025-03-02T17:00:00Z"
+    },
+    "status": "completed"
+  },
+  {
+    "matchId": 1002,
+    "round": 2,
+    "location": {
+      "circuit": "Jeddah Corniche Circuit",
+      "short": "SAU"
+    },
+    "timings": {
+      "start": "2025-03-09T17:00:00Z",
+      "end": "2025-03-09T19:00:00Z"
+    },
+    "status": "completed"
+  },
+  {
+    "matchId": 1003,
+    "round": 3,
+    "location": {
+      "circuit": "Albert Park Circuit",
+      "short": "AUS"
+    },
+    "timings": {
+      "start": "2025-03-16T05:00:00Z",
+      "end": "2025-03-16T07:00:00Z"
+    },
+    "status": "completed"
+  },
+  {
+    "matchId": 1004,
+    "round": 4,
+    "location": {
+      "circuit": "Suzuka Circuit",
+      "short": "JPN"
+    },
+    "timings": {
+      "start": "2025-04-06T06:00:00Z",
+      "end": "2025-04-06T08:00:00Z"
+    },
+    "status": "upcoming"
+  },
+  {
+    "matchId": 1005,
+    "round": 5,
+    "location": {
+      "circuit": "Shanghai International Circuit",
+      "short": "CHN"
+    },
+    "timings": {
+      "start": "2025-04-20T07:00:00Z",
+      "end": "2025-04-20T09:00:00Z"
+    },
+    "status": "upcoming"
+  }
+]
