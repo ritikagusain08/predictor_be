@@ -1,0 +1,35 @@
+
+services:
+  # 1. Our Database Container
+  db:
+    image: postgres:15-alpine
+    environment:   # setting db username, password, db name
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: predictor
+    ports:
+      - "5432:5432"  # mapping host port 5432 to container port 5432
+
+  # 2. Our Redis Container
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # 3. Our Node.js Application Container
+  api:
+    build: . # This tells Docker to build the Dockerfile in this directory!
+    ports:
+      - "3000:3000"
+    environment:
+      # The API needs to know how to talk to the db and redis containers
+      # Notice how we use the service names 'db' and 'redis' in the URLs!
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/predictor?schema=public"
+      REDIS_URL: "redis://redis:6379"
+      JWT_SECRET: "SECRET_KEY"
+    depends_on:
+      - db
+      - redis
+
+
+

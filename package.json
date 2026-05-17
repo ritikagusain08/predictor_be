@@ -8,7 +8,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/src/server.js",
-    "seed:f1": "tsx src/scripts/seedF1Data.ts",
+    "seed:f1": "tsx src/scripts/seedf1data.ts",
     "seed:league": "tsx prisma/seedLeagueType.ts"
   },
   "keywords": [],

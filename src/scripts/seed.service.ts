@@ -6,7 +6,7 @@ import {createTeam} from '../teams/team.service.ts'
 import {createPlayer} from '../players/player.service.ts'
 import {createMatch} from '../matches/match.service.ts'
 
-const filePath = path.join(__dirname, '../../data/f1_raw_data.json');  // join the path to the file
+const filePath = path.join(process.cwd(), '/data/f1_raw_data.json');  // join the path to the file
 
 const rawData = JSON.parse(fs.readFileSync(filePath, 'utf8'));   // read the file as a string
 

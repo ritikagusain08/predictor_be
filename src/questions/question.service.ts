@@ -34,7 +34,7 @@ export const createQuestion = async (data: CreateQuestionSchemaType) => {
             questionStatus: questionStatus,
             matchId: matchId,
             options: {
-                create: options.map(option => ({
+                create: options.map((option: any) => ({
                     optionId: option.optionId,
                     optionDesc: option.optionDesc,
                     points: option.points,
@@ -131,7 +131,7 @@ export const updateQuestion = async (data: UpdateQuestionSchemaType) => {
             ...(questionStatus !== undefined && { questionStatus: questionStatus }),
             options: {
                 deleteMany: {},
-                create: options.map(option => ({
+                create: options.map((option: any) => ({
                     optionId: option.optionId,
                     optionDesc: option.optionDesc,
                     points: option.points,
@@ -187,7 +187,7 @@ export const resolveQuestion = async (data: ResolveQuestionSchemaType) => {
         data: {
             questionStatus: 3, //  Explicitly mark as Resolved
             options: {
-                update: options.map(option => {
+                update: options.map((option: any) => {
                     if (!option.optionId) {
                         throw new BadRequestError('Option ID is required')
                     }
