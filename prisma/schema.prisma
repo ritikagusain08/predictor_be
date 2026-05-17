@@ -1,0 +1,384 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas = ["login", "master", "admin", "gameplay","rank", "league"]  // ALL schemas
+}
+
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+
+  predictions Prediction[]
+  matchLeaderboards MatchLeaderboard[]
+  seasonLeaderboards SeasonLeaderboard[]
+  
+  leagues       League[]       @relation("LeagueOwner")
+  leagueMembers LeagueMember[]  @relation("LeagueMember")
+  leagueMatchwiseLeaderboards LeagueMatchwiseLeaderboard[]
+leagueSeasonLeaderboards    LeagueSeasonLeaderboard[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("login")
+}
+
+model Team {
+  id            String   @id @default(uuid())
+
+  teamId        String  @unique
+  teamName      String 
+  teamShortName String 
+
+  players Player[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("master")
+}
+
+enum PlayerSkill {
+  DRIVER
+  CONSTRUCTOR
+
+  @@schema("master")
+}
+
+model Player {
+  id          String  @id @default(uuid())
+  
+  playerId    String @unique
+  playerName  String
+  playerSkill PlayerSkill
+  isActive    Boolean
+
+  teamId      String
+  team Team @relation(fields: [teamId], references: [teamId])
+
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("master")
+}
+
+model Match {
+  id        Int @id @default(autoincrement())
+  matchId   Int    @unique
+  gamedayId Int
+  circuitLocation   String 
+  circuitShortName  String
+  sessionStartDate  DateTime
+  sessionEndDate    DateTime
+  season    String  
+  status    Int
+
+  questions Question[]
+  predictions Prediction[]
+  
+  leagues   League[]   @relation("LeagueCreatedAt")
+  leagueMembers LeagueMember[]  @relation("MemberJoinedAt")
+  leagueMatchwiseLeaderboards LeagueMatchwiseLeaderboard[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@schema("master")
+}
+
+model Question {
+  id                  Int   @id @default(autoincrement())
+  questionNo          Int       
+  questionDescription String
+  questionStatus      Int
+  questionType        String
+  choiceLimit         Int
+
+  matchId Int      
+  match Match @relation(fields: [matchId], references: [matchId])
+
+  options Option[]   
+  predictions Prediction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([matchId, questionNo])
+  @@schema("admin")
+}
+
+model Option {
+  id         Int    @id @default(autoincrement())
+
+  optionId   Int  
+  optionDesc String
+  isCorrect  Boolean @default(false)
+  points     Int     @default(10)
+  position   Int
+
+  questionId Int
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  answers  PredictionAnswer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([optionId, questionId])
+
+  @@schema("admin")
+}
+
+model Prediction {
+  id Int @id @default(autoincrement())
+
+  userId String 
+  user   User @relation(fields: [userId], references: [id])
+
+  questionId Int
+  question Question @relation(fields: [questionId], references: [id])
+
+  matchId Int
+  match   Match @relation(fields: [matchId], references: [matchId])
+
+   hasBooster Boolean
+   points     Int @default(0)
+
+  answers PredictionAnswer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, matchId, questionId])
+  @@schema("gameplay")
+}
+
+model PredictionAnswer {
+  id Int @id @default(autoincrement())
+
+  predictionId Int
+  prediction Prediction @relation(fields: [predictionId], references: [id])
+
+  optionId   Int
+  questionId Int
+  position   Int @default(0)
+
+  option Option @relation(fields: [optionId, questionId], references: [optionId, questionId])
+
+  createdAt DateTime @default(now())
+
+  @@unique([predictionId, optionId])
+  @@schema("gameplay")
+}
+
+
+model MatchLeaderboard {
+  id            Int      @id @default(autoincrement())
+
+  userId        String
+  user User @relation(fields: [userId], references: [id])
+
+  matchId       Int
+
+  rno     Int 
+  points    Int    @default(0)
+  rank      Int
+
+  prvPoints Int    @default(0)
+  prvRank   Int
+
+  trend     String 
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, matchId])
+
+   @@schema("rank")
+}
+
+model SeasonLeaderboard {
+  id            Int      @id @default(autoincrement())
+
+  userId        String
+  user User @relation(fields: [userId], references: [id])
+
+  points    Int    @default(0)
+  rno     Int 
+  rank      Int
+  prvPoints Int    @default(0)
+  prvRank   Int
+  trend     String 
+
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId])
+   @@schema("rank")
+}
+
+enum CreatorRole {
+  USER
+  ADMIN
+  @@schema("league")
+}
+
+model LeagueTemplate { 
+  id Int @id @default(autoincrement())
+  name String @unique
+  requireLeagueCode Boolean @default(false)
+  isSearchable Boolean @default(false)
+  allowUserLeave Boolean @default(false)
+  allowRenaming Boolean @default(false)
+  allowAdminDelete Boolean @default(false)
+  allowMemberRemoval Boolean @default(false)
+  creatorRole CreatorRole
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  hasMatchRange Boolean @default(false)
+  defaultMaxMembers  Int  @default(999999)
+  maxLeaguesPerUser   Int?
+
+
+  leagues League[]
+  matchwiseLeaderboards LeagueMatchwiseLeaderboard[]
+  seasonLeaderboards    LeagueSeasonLeaderboard[]
+  
+  @@schema("league")
+}
+
+model League{
+  id Int @id @default(autoincrement())
+  templateId Int 
+  template LeagueTemplate @relation(fields: [templateId], references: [id])
+  
+  leagueName String
+  leagueCode String @unique
+  createdAtMatchId Int 
+  match Match @relation("LeagueCreatedAt", fields: [createdAtMatchId], references: [matchId])
+  
+  userId String
+  user User @relation("LeagueOwner", fields: [userId], references: [id])
+
+  startMatchId  Int?   
+  endMatchId    Int?
+  maximumMembers Int @default(999999)
+  membersCount   Int @default(0)
+  isDeleted Boolean @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members LeagueMember[]
+  matchwiseLeaderboards LeagueMatchwiseLeaderboard[]
+  seasonLeaderboards    LeagueSeasonLeaderboard[]
+
+  @@schema("league")
+}
+
+
+model LeagueMember{
+  id Int @id @default(autoincrement())
+  leagueId Int 
+  league League @relation(fields: [leagueId], references: [id])
+
+  userId String
+  user User @relation("LeagueMember", fields: [userId], references: [id])
+
+  joinedAtMatchId Int 
+  match Match @relation("MemberJoinedAt", fields: [joinedAtMatchId], references: [matchId])
+  
+  isAdmin Boolean @default(false)
+  isDisjoined Boolean @default(false)
+  isRemoved Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([leagueId, userId])
+  @@schema("league")
+}
+
+model LeagueMatchwiseLeaderboard{
+   id            Int      @id @default(autoincrement())
+
+   leagueId      Int  
+   league League  @relation(fields: [leagueId], references: [id])
+
+  userId        String
+  user User @relation(fields: [userId], references: [id])
+
+  matchId Int
+  match Match @relation(fields: [matchId], references: [matchId])
+
+  templateId Int 
+  template LeagueTemplate @relation(fields: [templateId], references: [id])
+
+  rno     Int 
+  points    Int    @default(0)
+  rank      Int
+
+  prvPoints Int    @default(0)
+  prvRank   Int
+
+  trend     String 
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, matchId, leagueId])
+  @@index([matchId])
+  @@index([userId])
+  @@index([points])
+  @@index([leagueId, rank])
+  @@index([matchId, rank])
+
+   @@schema("rank")
+  
+}
+
+
+
+model LeagueSeasonLeaderboard{
+   id            Int      @id @default(autoincrement())
+
+   leagueId      Int  
+   league League  @relation(fields: [leagueId], references: [id])
+
+  userId        String
+  user User @relation(fields: [userId], references: [id])
+
+  templateId Int 
+  template LeagueTemplate @relation(fields: [templateId], references: [id])
+
+  rno     Int 
+  points    Int    @default(0)
+  rank      Int
+
+  prvPoints Int    @default(0)
+  prvRank   Int
+
+  trend     String 
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, leagueId])
+
+   @@schema("rank")
+}
