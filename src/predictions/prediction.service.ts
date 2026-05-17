@@ -38,7 +38,7 @@ export const createPrediction = async (req: FastifyRequest) => {
 
     // check if match status is open 
 
-    if (existingMatch.status !== 1){
+    if (existingMatch.status !== 1) {
         throw new BadRequestError('Gameday is not open')
     }
 
@@ -67,7 +67,7 @@ export const createPrediction = async (req: FastifyRequest) => {
             }
         }
     })
-    
+
     if (existingPrediction) {
         const updatedPrediction = await prisma.prediction.update({
             where: {
@@ -116,7 +116,7 @@ export const createPrediction = async (req: FastifyRequest) => {
         }
     })
     return prediction
-    
+
 }
 
 export const getPrediction = async (req: FastifyRequest) => {
@@ -135,7 +135,7 @@ export const getPrediction = async (req: FastifyRequest) => {
         }
     })
     return prediction
-}   
+}
 
 
 export const getUserMatchPredictions = async (req: FastifyRequest) => {

@@ -3,6 +3,15 @@ import type { CalculatePointsSchemaType, GenerateMatchLeaderboardSchemaType, Gen
 import { BadRequestError } from "../errors/HttpError.ts";
 import { updateMatchStatus } from "../services/matchstatusupdate.service.ts";
 import {redis} from "../config/redis.ts";
+import fs from "fs";
+import path from "path";
+
+const logFilePath = path.join(process.cwd(), "pc_debug.log");
+
+const writeLog = (message: string) => {
+    const timestamp = new Date().toISOString();
+    fs.appendFileSync(logFilePath, `[${timestamp}] ${message}\n`);
+};
 
 export const getResolvedQuestions = async (matchId: number) => {
     const resolvedQuestions = await prisma.question.findMany({
@@ -58,14 +67,18 @@ export const getUserPredictions = async (matchId: number) => {
 
 export const calculatePoints = async (input: CalculatePointsSchemaType) => {
     const { matchId } = input
+    writeLog(`[calculatePoints] Starting points calculation for matchId: ${matchId}`);
 
     const resolvedQuestions = await getResolvedQuestions(matchId)
+    writeLog(`[calculatePoints] Found ${resolvedQuestions.length} resolved questions for matchId: ${matchId}`);
 
     if (!resolvedQuestions.length) {  // check if there are any resolved questions
+        writeLog(`[calculatePoints] WARN: No resolved questions found for matchId: ${matchId}`);
         throw new BadRequestError('No resolved questions found')
     }
 
     const userPredictions = await getUserPredictions(matchId)  // get all user predictions for the match
+    writeLog(`[calculatePoints] Found ${userPredictions.length} user predictions for matchId: ${matchId}`);
 
     for (const prediction of userPredictions) {
         let totalPoints = 0;
@@ -87,12 +100,14 @@ export const calculatePoints = async (input: CalculatePointsSchemaType) => {
             totalPoints *= 2;
         }
 
+        writeLog(`[calculatePoints] Updating prediction ${prediction.id} (User: ${prediction.userId}) with points: ${totalPoints}`);
         await prisma.prediction.update({
             where: { id: prediction.id },
             data: { points: totalPoints }
         })
     }
 
+    writeLog(`[calculatePoints] Generating leaderboards for matchId: ${matchId}`);
     await generateMatchLeaderboard(matchId)
     await generateSeasonLeaderboard(matchId)
 
@@ -101,30 +116,43 @@ export const calculatePoints = async (input: CalculatePointsSchemaType) => {
             isDeleted: false
         }
     })
+    writeLog(`[calculatePoints] Found ${activeLeagues.length} active leagues to update`);
 
     for (const league of activeLeagues) {
+        writeLog(`[calculatePoints] Generating leaderboards for leagueId: ${league.id}`);
         await generateMatchwiseLeagueLeaderboard(league.id, matchId)
         await generateSeasonLeagueLeaderboard(league.id)
     }
 
+    writeLog(`[calculatePoints] Updating match status to completed (status 4) for matchId: ${matchId}`);
     await updateMatchStatus(matchId, 4)
 
     // open next match 
 
     const nextMatch = await prisma.match.findFirst({
         where: {
-            status: 0
+            matchId: { gt: matchId }
+        },
+        orderBy: {
+            matchId: 'asc'
         }
     })
 
-    if (nextMatch) {
+    if (nextMatch && nextMatch.status === 0) {
+        writeLog(`[calculatePoints] Opening next matchId: ${nextMatch.matchId}`);
         await updateMatchStatus(nextMatch.matchId, 1)
+    } else if (nextMatch) {
+        writeLog(`[calculatePoints] Next matchId ${nextMatch.matchId} already has status ${nextMatch.status}, skipping status update.`);
+    } else {
+        writeLog(`[calculatePoints] No next match found after matchId ${matchId}.`);
     }
 
+    writeLog(`[calculatePoints] Points calculation successfully completed for matchId: ${matchId}`);
     return { status: 'success', message: "PC DONE" };
 }
 
 export const generateMatchLeaderboard = async (matchId: number) => {
+    writeLog(`[generateMatchLeaderboard] Generating match leaderboard for matchId: ${matchId}`);
 
     await redis.del(`leaderboard:match:${matchId}:zset`);
 
@@ -138,6 +166,8 @@ export const generateMatchLeaderboard = async (matchId: number) => {
         }
     })
 
+    writeLog(`[generateMatchLeaderboard] Aggregated user points count: ${userPoints.length}`);
+
     for (const entry of userPoints){
         const userId = entry.userId;
         const points = entry._sum.points || 0;
@@ -145,6 +175,8 @@ export const generateMatchLeaderboard = async (matchId: number) => {
         await redis.zadd(`leaderboard:match:${matchId}:zset`,points, userId);
     }
     const sortUsers = userPoints.sort((a, b) => (b._sum.points || 0) - (a._sum.points || 0)) // sort users by points in descending order
+
+    writeLog(`[generateMatchLeaderboard] Sorted users ranking order: ${JSON.stringify(sortUsers)}`);
 
     let currentRank = 1;
     let previousPoints: number | null = null;
@@ -193,6 +225,8 @@ export const generateMatchLeaderboard = async (matchId: number) => {
             }
         }
 
+        writeLog(`[generateMatchLeaderboard] User ${user.userId}: Rank=${currentRank}, Points=${points}, Trend=${trend}`);
+
         ranksToUpdate.push({
             userId: user.userId,
             matchId: matchId,
@@ -235,10 +269,12 @@ export const generateMatchLeaderboard = async (matchId: number) => {
             }
         });
     }
+    writeLog(`[generateMatchLeaderboard] Successfully generated match leaderboard for matchId: ${matchId}`);
     return { status: 'success', message: "Match leaderboard generated successfully" };
 }
 
 export const generateSeasonLeaderboard = async (matchId: number) => {
+    writeLog(`[generateSeasonLeaderboard] Generating season leaderboard`);
 
     await redis.del(`leaderboard:season`)
 
@@ -248,6 +284,8 @@ export const generateSeasonLeaderboard = async (matchId: number) => {
             points: true
         }
     })
+
+    writeLog(`[generateSeasonLeaderboard] Aggregated season user points count: ${userPoints.length}`);
 
     for (const entry of userPoints){
         const userId = entry.userId;
@@ -339,10 +377,12 @@ export const generateSeasonLeaderboard = async (matchId: number) => {
             }
         })
     }
+    writeLog(`[generateSeasonLeaderboard] Successfully generated season leaderboard`);
     return { status: 'success', message: "Season leaderboard generated successfully" };
 }
 
 export const generateMatchwiseLeagueLeaderboard = async (leagueId: number, matchId: number) => {
+    writeLog(`[generateMatchwiseLeagueLeaderboard] Generating matchwise league leaderboard for leagueId: ${leagueId}, matchId: ${matchId}`);
 
     await redis.del(`leaderboard:league:matchwise:${leagueId}:${matchId}`);
 
@@ -352,6 +392,7 @@ export const generateMatchwiseLeagueLeaderboard = async (leagueId: number, match
     });
 
     if (!league) {
+        writeLog(`[generateMatchwiseLeagueLeaderboard] WARN: League not found: ${leagueId}`);
         throw new BadRequestError('League not found');
     }
 
@@ -368,6 +409,7 @@ export const generateMatchwiseLeagueLeaderboard = async (leagueId: number, match
     });
 
     const memberUserIds = members.map(m => m.userId);
+    writeLog(`[generateMatchwiseLeagueLeaderboard] Found ${memberUserIds.length} active members in leagueId: ${leagueId}`);
 
     // 2. Get points for these members from the match predictions
     const userPoints = await prisma.prediction.groupBy({
@@ -484,11 +526,13 @@ export const generateMatchwiseLeagueLeaderboard = async (leagueId: number, match
             }
         })
     }
+    writeLog(`[generateMatchwiseLeagueLeaderboard] Successfully generated matchwise league leaderboard for leagueId: ${leagueId}`);
     return { status: 'success', message: "Matchwise league leaderboard generated successfully" };
 }
 
 export const generateSeasonLeagueLeaderboard = async (leagueId: number) => {
-  
+    writeLog(`[generateSeasonLeagueLeaderboard] Generating season league leaderboard for leagueId: ${leagueId}`);
+
     await redis.del(`leaderboard:season:league:${leagueId}`)
 
     const league = await prisma.league.findUnique({
@@ -497,6 +541,7 @@ export const generateSeasonLeagueLeaderboard = async (leagueId: number) => {
     });
 
     if (!league) {
+        writeLog(`[generateSeasonLeagueLeaderboard] WARN: League not found: ${leagueId}`);
         throw new BadRequestError('League not found');
     }
 
@@ -626,5 +671,6 @@ export const generateSeasonLeagueLeaderboard = async (leagueId: number) => {
             }
         })
     }
+    writeLog(`[generateSeasonLeagueLeaderboard] Successfully generated season league leaderboard for leagueId: ${leagueId}`);
     return { status: 'success', message: "Season league leaderboard generated successfully" };
 }

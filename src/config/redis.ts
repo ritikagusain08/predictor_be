@@ -1,5 +1,16 @@
-import { Redis } from "ioredis";  // new instance of redis client 
+import { Redis } from "ioredis";
+import { env } from "./env.ts";
 
+export const redis = new Redis(env.REDIS_URL, {
+  retryStrategy: (times) => {
+    return Math.min(times * 50, 2000); // Reconnect after up to 2 seconds
+  },
+});
 
-export const redis = new Redis();  // connects to 'localhost:6379' by default 
+redis.on("error", (err) => {
+  console.error("[Redis Error] Failed to connect:", err.message);
+});
 
+redis.on("connect", () => {
+  console.log("[Redis] Connected successfully");
+});

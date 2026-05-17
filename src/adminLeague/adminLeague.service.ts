@@ -6,6 +6,15 @@ import type { CreateAdminLeagueSchemaType, UpdateAdminLeagueSchemaType } from ".
 export const createAdminLeague = async (data: CreateAdminLeagueSchemaType) => {
     const { leagueName, templateId, userId, createdAtMatchId, startMatchId, endMatchId, maximumMembers } = data
 
+    let activeUserId = userId;
+    if (!activeUserId || activeUserId === "") {
+        const firstUser = await prisma.user.findFirst();
+        if (!firstUser) {
+            throw new BadRequestError("No user found in database. Please register or login first.");
+        }
+        activeUserId = firstUser.id;
+    }
+
     const template = await prisma.leagueTemplate.findUnique({
         where: { id: templateId }
     })
@@ -42,7 +51,7 @@ export const createAdminLeague = async (data: CreateAdminLeagueSchemaType) => {
             leagueName: leagueName,
             leagueCode: leagueCode,
             templateId: templateId,
-            userId: userId,
+            userId: activeUserId,
             createdAtMatchId: createdAtMatchId,
             startMatchId: startMatchId ?? null,
             endMatchId: endMatchId ?? null,
@@ -54,7 +63,7 @@ export const createAdminLeague = async (data: CreateAdminLeagueSchemaType) => {
     await prisma.leagueMember.create({
         data: {
             leagueId: newLeague.id,
-            userId: userId,
+            userId: activeUserId,
             joinedAtMatchId: createdAtMatchId,
             isAdmin: true
         }
@@ -122,6 +131,10 @@ export const deleteAdminLeague = async (id: number) => {
     if(!isLeagueExist){
         throw new BadRequestError("League does not exist")
     }
+
+    await prisma.leagueMember.deleteMany({ where: { leagueId: id } });
+    await prisma.leagueMatchwiseLeaderboard.deleteMany({ where: { leagueId: id } });
+    await prisma.leagueSeasonLeaderboard.deleteMany({ where: { leagueId: id } });
 
     const deletedLeague = await prisma.league.delete({
         where: {

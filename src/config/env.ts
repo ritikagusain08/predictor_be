@@ -10,6 +10,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   JWT_SECRET: z.string().min(10, 'JWT_SECRET must be at least 10 characters'),
+  REDIS_URL: z.string().default('redis://localhost:6379'),
 })
 
 const parsed = envSchema.safeParse(process.env)

@@ -2,7 +2,7 @@ import { prisma } from '../config/prisma.ts'
 import type { CreateMatchSchemaType } from './match.schema.ts'
 import { redis } from '../config/redis.ts'
 
-export const createMatch = async(data: CreateMatchSchemaType) => {
+export const createMatch = async (data: CreateMatchSchemaType) => {
     // invalidate cache when match is created
     const cacheKey = 'matches:all';
     await redis.del(cacheKey);
@@ -12,7 +12,7 @@ export const createMatch = async(data: CreateMatchSchemaType) => {
     const existingMatch = await prisma.match.findUnique({
         where: {
             matchId: matchId
-        }         
+        }
     })
 
     // if match already exists, then update the other fields
@@ -31,6 +31,7 @@ export const createMatch = async(data: CreateMatchSchemaType) => {
                 status: status
             }
         })
+
         return existingMatch
     }
 
@@ -59,7 +60,7 @@ export const createMatch = async(data: CreateMatchSchemaType) => {
 }
 
 
-export const getMatch = async(matchId: number) => {
+export const getMatch = async (matchId: number) => {
 
     const match = await prisma.match.findUnique({
         where: {
@@ -80,13 +81,13 @@ export const getMatch = async(matchId: number) => {
     return match
 }
 
-export const getMatches = async() => {
+export const getMatches = async () => {
 
-    
+
     const cacheKey = 'matches:all';
     const cachedMatches = await redis.get(cacheKey);
 
-    if(cachedMatches) {
+    if (cachedMatches) {
         return JSON.parse(cachedMatches);
     }
     const matches = await prisma.match.findMany({

@@ -380,7 +380,8 @@ export const getAllLeagues = async (req: FastifyRequest) => {
                 }
             }
         },
-        include: {
+        include: {  
+            // get all user created or joined league with is_admin, member_count and template key
             _count: {
                 select: {
                     members: {
@@ -397,6 +398,7 @@ export const getAllLeagues = async (req: FastifyRequest) => {
                     username: true
                 }
             }
+
         }
     })
 

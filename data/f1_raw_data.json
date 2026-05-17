@@ -63,74 +63,220 @@
           "active": true
         }
       ]
+    },
+    {
+      "team_info": {
+        "id": 144,
+        "name": "McLaren",
+        "short": "MCL"
+      },
+      "drivers": [
+        {
+          "id": 401,
+          "fullName": "Lando Norris",
+          "skill": "DRIVER",
+          "active": true
+        },
+        {
+          "id": 402,
+          "fullName": "Oscar Piastri",
+          "skill": "DRIVER",
+          "active": true
+        }
+      ]
+    },
+    {
+      "team_info": {
+        "id": 155,
+        "name": "Aston Martin",
+        "short": "AST"
+      },
+      "drivers": [
+        {
+          "id": 501,
+          "fullName": "Fernando Alonso",
+          "skill": "DRIVER",
+          "active": true
+        },
+        {
+          "id": 502,
+          "fullName": "Lance Stroll",
+          "skill": "DRIVER",
+          "active": true
+        }
+      ]
+    },
+    {
+      "team_info": {
+        "id": 166,
+        "name": "Alpine",
+        "short": "ALP"
+      },
+      "drivers": [
+        {
+          "id": 601,
+          "fullName": "Pierre Gasly",
+          "skill": "DRIVER",
+          "active": true
+        },
+        {
+          "id": 602,
+          "fullName": "Esteban Ocon",
+          "skill": "DRIVER",
+          "active": true
+        }
+      ]
+    },
+    {
+      "team_info": {
+        "id": 177,
+        "name": "Williams",
+        "short": "WIL"
+      },
+      "drivers": [
+        {
+          "id": 701,
+          "fullName": "Alex Albon",
+          "skill": "DRIVER",
+          "active": true
+        },
+        {
+          "id": 702,
+          "fullName": "Franco Colapinto",
+          "skill": "DRIVER",
+          "active": true
+        }
+      ]
+    },
+    {
+      "team_info": {
+        "id": 188,
+        "name": "RB",
+        "short": "RBA"
+      },
+      "drivers": [
+        {
+          "id": 801,
+          "fullName": "Yuki Tsunoda",
+          "skill": "DRIVER",
+          "active": true
+        },
+        {
+          "id": 802,
+          "fullName": "Liam Lawson",
+          "skill": "DRIVER",
+          "active": true
+        }
+      ]
+    },
+    {
+      "team_info": {
+        "id": 199,
+        "name": "Stake F1",
+        "short": "STK"
+      },
+      "drivers": [
+        {
+          "id": 901,
+          "fullName": "Valtteri Bottas",
+          "skill": "DRIVER",
+          "active": true
+        },
+        {
+          "id": 902,
+          "fullName": "Gabriel Bortoleto",
+          "skill": "DRIVER",
+          "active": true
+        }
+      ]
+    },
+    {
+      "team_info": {
+        "id": 210,
+        "name": "Haas",
+        "short": "HAA"
+      },
+      "drivers": [
+        {
+          "id": 10010,
+          "fullName": "Nico Hulkenberg",
+          "skill": "DRIVER",
+          "active": true
+        },
+        {
+          "id": 10020,
+          "fullName": "Kevin Magnussen",
+          "skill": "DRIVER",
+          "active": true
+        }
+      ]
     }
   ],
- "raceCalendar": [
-  {
-    "matchId": 1001,
-    "round": 1,
-    "location": {
-      "circuit": "Bahrain International Circuit",
-      "short": "BAH"
+  "raceCalendar": [
+    {
+      "matchId": 1001,
+      "round": 1,
+      "location": {
+        "circuit": "Bahrain International Circuit",
+        "short": "BAH"
+      },
+      "timings": {
+        "start": "2025-03-02T15:00:00Z",
+        "end": "2025-03-02T17:00:00Z"
+      },
+      "status": 1
     },
-    "timings": {
-      "start": "2025-03-02T15:00:00Z",
-      "end": "2025-03-02T17:00:00Z"
+    {
+      "matchId": 1002,
+      "round": 2,
+      "location": {
+        "circuit": "Jeddah Corniche Circuit",
+        "short": "SAU"
+      },
+      "timings": {
+        "start": "2025-03-09T17:00:00Z",
+        "end": "2025-03-09T19:00:00Z"
+      },
+      "status": 0
     },
-    "status": 0
-  },
-  {
-    "matchId": 1002,
-    "round": 2,
-    "location": {
-      "circuit": "Jeddah Corniche Circuit",
-      "short": "SAU"
+    {
+      "matchId": 1003,
+      "round": 3,
+      "location": {
+        "circuit": "Albert Park Circuit",
+        "short": "AUS"
+      },
+      "timings": {
+        "start": "2025-03-16T05:00:00Z",
+        "end": "2025-03-16T07:00:00Z"
+      },
+      "status": 0
     },
-    "timings": {
-      "start": "2025-03-09T17:00:00Z",
-      "end": "2025-03-09T19:00:00Z"
+    {
+      "matchId": 1004,
+      "round": 4,
+      "location": {
+        "circuit": "Suzuka Circuit",
+        "short": "JPN"
+      },
+      "timings": {
+        "start": "2025-04-06T06:00:00Z",
+        "end": "2025-04-06T08:00:00Z"
+      },
+      "status": 0
     },
-    "status": 0
-  },
-  {
-    "matchId": 1003,
-    "round": 3,
-    "location": {
-      "circuit": "Albert Park Circuit",
-      "short": "AUS"
-    },
-    "timings": {
-      "start": "2025-03-16T05:00:00Z",
-      "end": "2025-03-16T07:00:00Z"
-    },
-    "status": 0
-  },
-  {
-    "matchId": 1004,
-    "round": 4,
-    "location": {
-      "circuit": "Suzuka Circuit",
-      "short": "JPN"
-    },
-    "timings": {
-      "start": "2025-04-06T06:00:00Z",
-      "end": "2025-04-06T08:00:00Z"
-    },
-    "status": 0
-  },
-  {
-    "matchId": 1005,
-    "round": 5,
-    "location": {
-      "circuit": "Shanghai International Circuit",
-      "short": "CHN"
-    },
-    "timings": {
-      "start": "2025-04-20T07:00:00Z",
-      "end": "2025-04-20T09:00:00Z"
-    },
-    "status": 0
-  }
-]
-
+    {
+      "matchId": 1005,
+      "round": 5,
+      "location": {
+        "circuit": "Shanghai International Circuit",
+        "short": "CHN"
+      },
+      "timings": {
+        "start": "2025-04-20T07:00:00Z",
+        "end": "2025-04-20T09:00:00Z"
+      },
+      "status": 0
+    }
+  ]
 }

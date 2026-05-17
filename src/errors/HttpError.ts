@@ -1,13 +1,17 @@
 
 export class HttpError extends Error {   //main parent class. All other errors will come from this
-    constructor(  //defines what your error will store
-      public readonly statusCode: number,  // status code of the error. HTTP status (400, 404, etc.)
+    public readonly statusCode: number;
+    public readonly code?: string;
+
+    constructor(
+      statusCode: number,  // status code of the error. HTTP status (400, 404, etc.)
       message: string,  // message of the error. Human-readable error message
-      public readonly code?: string  // code of the error. custom internal error code
+      code?: string  // code of the error. custom internal error code
     ) {
       super(message) //Passes message to built-in Error class. 
-      // super keyword is used to call the constructor of the parent class.
-      this.name = 'HttpError' //Sets the name of the error to 'HttpError'. this keyword is used to refer to the current instance of the class
+      this.statusCode = statusCode;
+      this.code = code;
+      this.name = 'HttpError' //Sets the name of the error to 'HttpError'
     }
   }
   

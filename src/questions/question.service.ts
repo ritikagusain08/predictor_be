@@ -4,7 +4,12 @@ import { BadRequestError } from '../errors/HttpError.ts'
 import { updateMatchStatus } from '../services/matchstatusupdate.service.ts'
 
 export const createQuestion = async (data: CreateQuestionSchemaType) => {
+    console.log('DEBUG createQuestion received payload:', JSON.stringify(data, null, 2));
     const { questionNo, questionDescription, questionType, choiceLimit, questionStatus, matchId, options } = data
+
+    if (!matchId || matchId === 0 || matchId < 1000) {
+        throw new BadRequestError(`Invalid Match ID (${matchId}) received. Please ensure a valid match (e.g., 1001) is selected in the dropdown.`);
+    }
 
     const existingQuestion = await prisma.question.findUnique({
         where: {
@@ -125,26 +130,14 @@ export const updateQuestion = async (data: UpdateQuestionSchemaType) => {
             ...(choiceLimit !== undefined && { choiceLimit: choiceLimit }),
             ...(questionStatus !== undefined && { questionStatus: questionStatus }),
             options: {
-                update: options.map(option => {
-                    if (!option.optionId) {
-                        throw new BadRequestError('Option ID is required')
-                    }
-                    return {
-                        where: {
-                            optionId_questionId: {
-                                optionId: option.optionId,
-                                questionId, // same Question `id` you already use for the parent update
-                              },
-                        },
-                        data: {
-                            ...(option.optionId !== undefined && { optionId: option.optionId }),
-                            ...(option.optionDesc !== undefined && { optionDesc: option.optionDesc }),
-                            ...(option.points !== undefined && { points: option.points }),
-                            ...(option.position !== undefined && { position: option.position }),
-                            ...(option.isCorrect !== undefined && { isCorrect: option.isCorrect })
-                        }
-                    }
-                })
+                deleteMany: {},
+                create: options.map(option => ({
+                    optionId: option.optionId,
+                    optionDesc: option.optionDesc,
+                    points: option.points,
+                    position: option.position,
+                    isCorrect: option.isCorrect
+                }))
             }
         },
         include: {
@@ -192,7 +185,7 @@ export const resolveQuestion = async (data: ResolveQuestionSchemaType) => {
             id: questionId
         },
         data: {
-            questionStatus: 3, // 👈 Explicitly mark as Resolved
+            questionStatus: 3, //  Explicitly mark as Resolved
             options: {
                 update: options.map(option => {
                     if (!option.optionId) {

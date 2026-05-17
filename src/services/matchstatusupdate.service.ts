@@ -2,8 +2,10 @@
 
 import { prisma } from '../config/prisma.ts'
 import { BadRequestError } from '../errors/HttpError.ts'
+import { redis } from '../config/redis.ts'
 
 export const updateMatchStatus = async (matchId: number, status: number) => {
+
 
     const isValidMatch = await prisma.match.findUnique({
         where: {
@@ -15,69 +17,73 @@ export const updateMatchStatus = async (matchId: number, status: number) => {
         throw new BadRequestError('Match not found')
     }
 
-   const validStatuses = [0, 1, 2, 3, 4]
+    const validStatuses = [0, 1, 2, 3, 4]
 
-   if (!validStatuses.includes(status)) {
-    throw new BadRequestError('Invalid status')
-   }
-
-   const updatedMatchStatus = await prisma.match.update({
-    where: {
-        matchId: matchId
-    },
-    data: {
-        status: status
+    if (!validStatuses.includes(status)) {
+        throw new BadRequestError('Invalid status')
     }
-   })
 
-   
-   if (updatedMatchStatus.status === 0) {
-    await prisma.question.updateMany({
+    const updatedMatchStatus = await prisma.match.update({
         where: {
             matchId: matchId
         },
         data: {
-            questionStatus: 0
+            status: status
         }
     })
-    return {
-        message: 'Match is closed',
-        status: updatedMatchStatus.status
-    }
-}
+
+    await redis.del('matches:all')
 
 
+    if (updatedMatchStatus.status === 0) {
+        await prisma.question.updateMany({
+            where: {
+                matchId: matchId
+            },
+            data: {
+                questionStatus: 0
+            }
+        })
 
-   if (updatedMatchStatus.status === 1) {
-    await prisma.question.updateMany({
-        where: {
-            matchId: matchId
-        },
-        data: {
-            questionStatus: 1
+        return {
+            message: 'Match is closed',
+            status: updatedMatchStatus.status
         }
-    })
-    // message to frontend that match is open
-    return {
-        message: 'Match is open',
-        status: updatedMatchStatus.status
     }
-   }
 
-   if (updatedMatchStatus.status === 2) {
-    await prisma.question.updateMany({
-     where: {
-         matchId: matchId
-     },
-     data: {
-         questionStatus: 2
-     }
-    })
-    return {
-     message: 'Match is locked',
-     status: updatedMatchStatus.status
+
+
+    if (updatedMatchStatus.status === 1) {
+        await prisma.question.updateMany({
+            where: {
+                matchId: matchId
+            },
+            data: {
+                questionStatus: 1
+            }
+        })
+
+        // message to frontend that match is open
+        return {
+            message: 'Match is open',
+            status: updatedMatchStatus.status
+        }
     }
-}
+
+    if (updatedMatchStatus.status === 2) {
+        await prisma.question.updateMany({
+            where: {
+                matchId: matchId
+            },
+            data: {
+                questionStatus: 2
+            }
+        })
+        return {
+            message: 'Match is locked',
+            status: updatedMatchStatus.status
+        }
+    }
 
     if (updatedMatchStatus.status === 3) {
         // We REMOVED the cascading update for status 3 to prevent force-resolving all questions.
@@ -89,22 +95,23 @@ export const updateMatchStatus = async (matchId: number, status: number) => {
     }
 
 
-   if (updatedMatchStatus.status === 4) {
-    await prisma.question.updateMany({
-        where: {
-            matchId: matchId
-        },
-        data: {
-            questionStatus: 4
+    if (updatedMatchStatus.status === 4) {
+        await prisma.question.updateMany({
+            where: {
+                matchId: matchId,
+                questionStatus: 3
+            },
+            data: {
+                questionStatus: 4
+            }
+        })
+        return {
+            message: 'Match Points Calculated',
+            status: updatedMatchStatus.status
         }
-    })
-    return {
-        message: 'Match Points Calculated',
-        status: updatedMatchStatus.status
     }
-   }
 
-  
+
 }
 
 export const getMatchStatus = async (matchId: number) => {
@@ -117,7 +124,7 @@ export const getMatchStatus = async (matchId: number) => {
         }
     })
 
-    
+
     if (!match) {
         throw new BadRequestError('Match not found')
     }
