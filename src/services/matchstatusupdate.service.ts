@@ -3,6 +3,7 @@
 import { prisma } from '../config/prisma.ts'
 import { BadRequestError } from '../errors/HttpError.ts'
 import { redis } from '../config/redis.ts'
+import { predictionQueue } from '../jobs/queue.ts'
 
 export const updateMatchStatus = async (matchId: number, status: number) => {
 
@@ -88,8 +89,11 @@ export const updateMatchStatus = async (matchId: number, status: number) => {
     if (updatedMatchStatus.status === 3) {
         // We REMOVED the cascading update for status 3 to prevent force-resolving all questions.
         // Questions should be resolved individually via the resolution process.
+        await predictionQueue.add('calculate-points', { matchId: matchId });
+        console.log(`[Queue] Added 'calculate-points' job to queue for matchId: ${matchId}`);
+
         return {
-            message: 'Question Resolution Process Finalized for Match',
+            message: 'Question Resolution Process Finalized for Match. Points calculation started in the background.',
             status: updatedMatchStatus.status
         }
     }

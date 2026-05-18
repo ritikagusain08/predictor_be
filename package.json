@@ -25,6 +25,7 @@
     "@types/axios": "^0.9.36",
     "axios": "^1.15.0",
     "bcrypt": "^6.0.0",
+    "bullmq": "^5.76.10",
     "dotenv": "^17.3.1",
     "fastify": "^5.8.4",
     "fastify-plugin": "^5.1.0",
