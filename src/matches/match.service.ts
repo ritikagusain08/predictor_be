@@ -82,14 +82,17 @@ export const getMatch = async (matchId: number) => {
 }
 
 export const getMatches = async () => {
-
-
     const cacheKey = 'matches:all';
-    const cachedMatches = await redis.get(cacheKey);
-
-    if (cachedMatches) {
-        return JSON.parse(cachedMatches);
+    
+    try {
+        const cachedMatches = await redis.get(cacheKey);
+        if (cachedMatches) {
+            return JSON.parse(cachedMatches);
+        }
+    } catch (err) {
+        console.error("[Redis Cache Error] Failed to read from cache:", err);
     }
+
     const matches = await prisma.match.findMany({
         select: {
             matchId: true,
@@ -101,7 +104,11 @@ export const getMatches = async () => {
         }
     })
 
-    await redis.setex(cacheKey, 3600, JSON.stringify(matches));
+    try {
+        await redis.setex(cacheKey, 3600, JSON.stringify(matches));
+    } catch (err) {
+        console.error("[Redis Cache Error] Failed to write to cache:", err);
+    }
 
     return matches
 }

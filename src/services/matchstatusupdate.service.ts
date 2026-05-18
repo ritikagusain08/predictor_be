@@ -33,7 +33,11 @@ export const updateMatchStatus = async (matchId: number, status: number) => {
         }
     })
 
-    await redis.del('matches:all')
+    try {
+        await redis.del('matches:all');
+    } catch (err) {
+        console.error("[Redis Cache Error] Failed to delete cache key 'matches:all':", err);
+    }
 
 
     if (updatedMatchStatus.status === 0) {

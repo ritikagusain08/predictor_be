@@ -10,7 +10,12 @@ export const getMatchLeaderboard = async (req: FastifyRequest) => {
 
     // Get the top 50 users from the Sorted Set
     // 'WITHSCORES' gives you [userId, points, userId, points...]
-    const rawData = await redis.zrevrange(cacheKey,0, 49, 'WITHSCORES');
+    let rawData: string[] = [];
+    try {
+        rawData = await redis.zrevrange(cacheKey, 0, 49, 'WITHSCORES');
+    } catch (err) {
+        console.error("[Redis Cache Error] Failed to fetch match leaderboard from Redis:", err);
+    }
 
     if (rawData.length > 0) {
        // Transform the flat array into a nice JS object
@@ -128,7 +133,12 @@ export const getSeasonLeaderboard = async (req: FastifyRequest) => {
 
     const cacheKey = `leaderboard:season`;
 
-    const rawData = await redis.zrevrange(cacheKey, 0, 49, 'WITHSCORES')
+    let rawData: string[] = [];
+    try {
+        rawData = await redis.zrevrange(cacheKey, 0, 49, 'WITHSCORES');
+    } catch (err) {
+        console.error("[Redis Cache Error] Failed to fetch season leaderboard from Redis:", err);
+    }
 
     if(rawData.length > 0) {
         const leaderboard = [];
@@ -233,7 +243,12 @@ export const getLeagueMatchwiseLeaderboard =  async (req: FastifyRequest) => {
 
     const cacheKey = `leaderboard:league:matchwise:${leagueId}:${matchId}`
      
-    const rawData = await redis.zrevrange(cacheKey, 0, -1, 'WITHSCORES')
+    let rawData: string[] = [];
+    try {
+        rawData = await redis.zrevrange(cacheKey, 0, -1, 'WITHSCORES');
+    } catch (err) {
+        console.error("[Redis Cache Error] Failed to fetch league matchwise leaderboard from Redis:", err);
+    }
 
     if(rawData.length > 0) {
         const leaderboard = [];
@@ -294,7 +309,12 @@ export const getLeagueSeasonLeaderboard = async (req: FastifyRequest) => {
 
     const cacheKey = `leaderboard:season:league:${leagueId}`
 
-    const rawData = await redis.zrevrange(cacheKey, 0, -1, 'WITHSCORES')
+    let rawData: string[] = [];
+    try {
+        rawData = await redis.zrevrange(cacheKey, 0, -1, 'WITHSCORES');
+    } catch (err) {
+        console.error("[Redis Cache Error] Failed to fetch league season leaderboard from Redis:", err);
+    }
 
     if(rawData.length > 0) {
         const leaderboard = [];
