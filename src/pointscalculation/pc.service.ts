@@ -174,7 +174,7 @@ export const generateMatchLeaderboard = async (matchId: number) => {
 
         await redis.zadd(`leaderboard:match:${matchId}:zset`,points, userId);
     }
-    const sortUsers = userPoints.sort((a, b) => (b._sum.points || 0) - (a._sum.points || 0)) // sort users by points in descending order
+    const sortUsers = userPoints.sort((a:any, b:any) => (b._sum.points || 0) - (a._sum.points || 0)) // sort users by points in descending order
 
     writeLog(`[generateMatchLeaderboard] Sorted users ranking order: ${JSON.stringify(sortUsers)}`);
 
@@ -294,7 +294,7 @@ export const generateSeasonLeaderboard = async (matchId: number) => {
         await redis.zadd(`leaderboard:season`, points, userId);
     }
 
-    const sortUsers = userPoints.sort((a, b) => (b._sum.points || 0) - (a._sum.points || 0))
+    const sortUsers = userPoints.sort((a:any, b:any) => (b._sum.points || 0) - (a._sum.points || 0))
 
     let currentRank = 1;
     let previousPoints: number | null = null;
@@ -408,7 +408,7 @@ export const generateMatchwiseLeagueLeaderboard = async (leagueId: number, match
         select: { userId: true }
     });
 
-    const memberUserIds = members.map(m => m.userId);
+    const memberUserIds = members.map((m:any) => m.userId);
     writeLog(`[generateMatchwiseLeagueLeaderboard] Found ${memberUserIds.length} active members in leagueId: ${leagueId}`);
 
     // 2. Get points for these members from the match predictions
@@ -429,7 +429,7 @@ export const generateMatchwiseLeagueLeaderboard = async (leagueId: number, match
         await redis.zadd(`leaderboard:league:matchwise:${leagueId}:${matchId}`, points, userId);
     }
 
-    const sortUsers = userPoints.sort((a, b) => (b._sum.points || 0) - (a._sum.points || 0))
+    const sortUsers = userPoints.sort((a:any, b:any) => (b._sum.points || 0) - (a._sum.points || 0))
 
     let currentRank = 1;
     let previousPoints: number | null = null;
@@ -557,7 +557,7 @@ export const generateSeasonLeagueLeaderboard = async (leagueId: number) => {
         select: { userId: true }
     });
 
-    const memberUserIds = members.map(m => m.userId);
+    const memberUserIds = members.map((m:any) => m.userId);
 
     // 2. Aggregate points from all match-level leaderboards for this league
     const userPoints = await prisma.leagueMatchwiseLeaderboard.groupBy({
@@ -578,7 +578,7 @@ export const generateSeasonLeagueLeaderboard = async (leagueId: number) => {
         await redis.zadd(`leaderboard:season:league:${leagueId}`, points, userId);
     }
 
-    const sortUsers = userPoints.sort((a, b) => (b._sum.points || 0) - (a._sum.points || 0))
+    const sortUsers = userPoints.sort((a:any, b:any) => (b._sum.points || 0) - (a._sum.points || 0))
 
     let currentRank = 1;
     let previousPoints: number | null = null;

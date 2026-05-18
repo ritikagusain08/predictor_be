@@ -1,6 +1,6 @@
 import type { SqlDriverAdapterFactory } from '@prisma/client/runtime/client'
 import { PrismaPg } from '@prisma/adapter-pg'
-import { PrismaClient } from '../../generated/prisma/index.js'
+import { PrismaClient } from '@prisma/client'
 import { Pool } from 'pg'
 import { env } from './env.ts'
 

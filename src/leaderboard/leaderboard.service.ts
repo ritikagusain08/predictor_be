@@ -44,7 +44,7 @@ export const getMatchLeaderboard = async (req: FastifyRequest) => {
        const finalData = leaderboard.map(entry => ({
         ...entry,
         user:{
-            username: users.find(u => u.id == entry.userId)?.username || 'Unknown'
+            username: users.find((u:any) => u.id == entry.userId)?.username || 'Unknown'
         }
        }))
 
