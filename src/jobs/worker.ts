@@ -30,7 +30,8 @@ export const predictionWorker = new Worker(
     // --- Automatic Lock Match Job ---
 
     if (job.name === 'lock-matches-check') {
-            console.log(`[Worker] Checking for matches that need to be locked...`);
+            console.log(`[Worker] Auto-lock checker is currently DISABLED.`);
+            return;
             try {
                 const now = new Date();
                 

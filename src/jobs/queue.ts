@@ -17,14 +17,14 @@ export const predictionQueue = new Queue('prediction-tasks', {
 console.log("Background Queue 'prediction-tasks' is ready!");
 
 
-// 3. Add the repeatable job to check for matches that need to be locked every 60 seconds
-predictionQueue.add('lock-matches-check', {}, {
-    repeat: {
-        every: 60000 // runs every 60,000 milliseconds (1 minute)
-    },
-    jobId: 'lock-matches-check' // ensures it is unique and won't be duplicated
-}).then(() => {
-    console.log("Successfully scheduled background match lock checker!");
-}).catch(err => {
-    console.error("Error scheduling background lock checker:", err);
-});
+// 3. Background match lock checker is currently DISABLED
+// predictionQueue.add('lock-matches-check', {}, {
+//     repeat: {
+//         every: 60000 // runs every 60,000 milliseconds (1 minute)
+//     },
+//     jobId: 'lock-matches-check' // ensures it is unique and won't be duplicated
+// }).then(() => {
+//     console.log("Successfully scheduled background match lock checker!");
+// }).catch(err => {
+//     console.error("Error scheduling background lock checker:", err);
+// });
