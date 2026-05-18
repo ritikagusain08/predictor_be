@@ -4,8 +4,10 @@ import { calculatePoints } from '../pointscalculation/pc.service.ts';
 import { prisma } from '../config/prisma.ts';
 import { updateMatchStatus } from '../services/matchstatusupdate.service.ts';
 
-const redisConnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379',{
-    maxRetriesPerRequest: null
+const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+const redisConnection = new Redis(redisUrl, {
+    maxRetriesPerRequest: null,
+    tls: redisUrl.includes('localhost') ? undefined : {}
 });
 
 // 1. Create a Worker that listens to the 'prediction-tasks' queue

@@ -3,8 +3,10 @@ import {Redis} from 'ioredis';
 
 // 1. Connect to your existing Redis
 // You can use your existing Redis URL from your environment variables
-const redisConnection = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
-    maxRetriesPerRequest: null
+const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+const redisConnection = new Redis(redisUrl, {
+    maxRetriesPerRequest: null,
+    tls: redisUrl.includes('localhost') ? undefined : {}
 });
 
 // 2. Create a Queue named 'prediction-tasks'
