@@ -11,10 +11,11 @@ const globalForPrisma = globalThis as unknown as {
 
 const pool =
   globalForPrisma.pgPool ??
-  new Pool({ connectionString: env.DATABASE_URL })
-if (env.NODE_ENV !== 'production') {
-  globalForPrisma.pgPool = pool
-}
+  new Pool({
+    connectionString: env.DATABASE_URL,
+    ssl: env.DATABASE_URL.includes('localhost') ? false : { rejectUnauthorized: false }
+  })
+
 
 const adapter = new PrismaPg(pool) as SqlDriverAdapterFactory
 
