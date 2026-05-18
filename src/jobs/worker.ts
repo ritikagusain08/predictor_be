@@ -7,7 +7,7 @@ import { updateMatchStatus } from '../services/matchstatusupdate.service.ts';
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
 const redisConnection = new Redis(redisUrl, {
     maxRetriesPerRequest: null,
-    tls: redisUrl.includes('localhost') ? undefined : {}
+    tls: redisUrl.includes('localhost') ? undefined : { rejectUnauthorized: false }
 });
 
 // 1. Create a Worker that listens to the 'prediction-tasks' queue
