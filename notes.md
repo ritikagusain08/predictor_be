@@ -183,3 +183,8 @@ predictor_admin
 postgresql://ritika:jdkpNrgz17mJDi0GMRXkqN8KNmQR3prC@dpg-d85fmvjrjlhs73dvc95g-a/predictor_r4wh
 
 redis-cli --tls -u redis://default:gQAAAAAAAfdXAAIgcDIxZDNhOTE1YzlhNGE0Y2Y2OGM5MmZiY2NlZTY0M2QwNw@fit-lamprey-128855.upstash.io:6379
+
+
+external 
+
+postgresql://ritika:jdkpNrgz17mJDi0GMRXkqN8KNmQR3prC@dpg-d85fmvjrjlhs73dvc95g-a.oregon-postgres.render.com/predictor_r4wh
